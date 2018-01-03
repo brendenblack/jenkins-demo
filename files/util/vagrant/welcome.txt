@@ -1,0 +1,44 @@
+For installing components:
+- Make sure the current directory is '/vagrant'
+  $ cd /vagrant
+- run the desired ansible playbook. Example - Run on default dev servers:
+  $ ansible-playbook -i inventory/local jenkins.yml
+  $ ansible-playbook  jira.yml
+  $ ansible-playbook  bitbucket.yml
+  $ ansible-playbook  artifactory.yml
+  $ ansible-playbook  confluence.yml
+  $ ansible-playbook -i inventory/local mongo.yml
+  $ ansible-playbook -i inventory/dev playbooks/fme.yml 
+  
+  
+- Use '-i <env> ' option to run playbook with environment specific host files. 
+  Default environment is dev. Edit inventory/<env> to add/remove servers to host files.
+  Edit the key 'inventory' in ./ansible.cfg  to change the default inventory file.
+  
+- run the desired ansible playbook on test servers:
+  
+  $ ansible-playbook -i inventory/test jenkins.yml -u <user_name> --ask-become-pass
+  $ ansible-playbook -i inventory/test jira.yml -u <user_name> --ask-become-pass
+  $ ansible-playbook -i inventory/test bitbucket.yml -u <user_name> --ask-become-pass
+  $ ansible-playbook -i inventory/test artifactory.yml -u <user_name> --ask-become-pass
+  $ ansible-playbook -i inventory/test confluence.yml -u <user_name> --ask-become-pass
+  $ ansible-playbook -i inventory/test playbooks/fme.yml 
+ 
+- run the desired ansible playbook on prod servers: 
+
+  $ ansible-playbook -i inventory/prod jenkins.yml -u <user_name> --ask-become-pass
+  $ ansible-playbook -i inventory/prod jira.yml -u <user_name> --ask-become-pass
+  $ ansible-playbook -i inventory/prod bitbucket.yml -u <user_name> --ask-become-pass
+  $ ansible-playbook -i inventory/prod artifactory.yml -u <user_name> --ask-become-pass
+  $ ansible-playbook -i inventory/prod confluence.yml -u <user_name> --ask-become-pass
+  $ ansible-playbook -i inventory/prod playbooks/fme.yml 
+
+- For FME installs, follow the README here: /vagrant/roles/fme/README.txt
+  
+Visit:  
+  https://jira.127.0.0.1.xip.io:4430/
+  https://jenkins.127.0.0.1.xip.io:4430/
+  https://bitbucket.127.0.0.1.xip.io:4430/
+  https://artifactory.127.0.0.1.xip.io:4430/
+  https://confluence.127.0.0.1.xip.io:4430/
+
