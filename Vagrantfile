@@ -6,7 +6,7 @@ $scriptsWithSudo = <<SCRIPT
   sudo timedatectl set-timezone America/Vancouver
   sudo rpm -iUvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
   sudo yum -y update
-  sudo yum -y install kernel* dkms gcc ansible gcc python-pip python-devel openssl-devel unzip git wget ImageMagick ssmtp curl pythoin-jenkins
+  sudo yum -y install kernel* dkms gcc ansible gcc python-pip python-devel openssl-devel unzip git wget ImageMagick ssmtp curl python-jenkins mutt
   sudo pip install "pywinrm>=0.1.1"
   sudo yum remove java
   sudo yum -y install java-1.8.0-openjdk
@@ -80,7 +80,11 @@ Vagrant.configure("2") do |config|
   config.vm.provision "file", source: "provision/files/vagrant.bashrc", destination: "/home/vagrant/.bashrc"
   config.vm.provision "shell", inline: $scriptsWithSudo
   config.vm.provision "shell", inline: "sudo rm /etc/localtime && sudo ln -s /usr/share/zoneinfo/Canada/Pacific /etc/localtime", run: "always"
-  # config.vm.provision "ansible" do |ansible|
-  #   ansible.playbook = "provision/playbook.yml"
-  # end
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "provision/playbook.yml"
+    ansible.inventory = " provision/inventory.ini"
+      # ansible.extra_vars = {
+      #   smtp_pass: 
+      # }
+  end
 end

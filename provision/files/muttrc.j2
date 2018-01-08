@@ -1,0 +1,33 @@
+set from = "jenkinsboothCGI@gmail.com"
+set realname = "Jenkins Booth"
+set imap_user = "jenkinsboothCGI@gmail.com"
+set imap_pass = "{{ smtp_pass }}"
+set smtp_url = "smtps://jenkinsboothCGI@smtp.gmail.com:465/"
+set smtp_pass = "{{ smtp_pass }}"
+
+# Configuration Settings to send and receive via gmail
+set folder = "imaps://imap.gmail.com:993"
+set spoolfile = "+INBOX"
+set imap_check_subscribed
+set hostname = gmail.com
+set mail_check = 120
+set timeout = 300
+set imap_keepalive = 900
+set postponed = "+[GMail]/Drafts"
+set record = "+[GMail]/Sent Mail"
+set header_cache=~/.mutt/cache/headers
+set message_cachedir=~/.mutt/cache/bodies
+set certificate_file=~/.mutt/certificates
+set move = no
+set include
+set sort = 'threads'
+set sort_aux = 'reverse-last-date-received'
+set auto_tag = yes
+ignore "Authentication-Results:"
+ignore "DomainKey-Signature:"
+ignore "DKIM-Signature:"
+hdr_order Date From To Cc
+alternative_order text/plain text/html *
+auto_view text/html
+bind editor ^T complete
+set smtp_authenticators = 'gssapi:login'
