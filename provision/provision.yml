@@ -1,0 +1,46 @@
+---
+- hosts: default
+  vars:
+    pipeline_script: "{{ lookup('file', 'files/Jenkinsfile') }}"
+  roles:
+    - name: roles/jenkins
+      vars:
+        jenkins_plugins:
+          - blueocean
+          - git
+          - job-dsl
+          - workflow-aggregator
+      become: yes
+  tasks:
+    - name: make Jenkins home directory
+      file:
+        path: '/home/jenkins'
+        owner: 'jenkins'
+        group: 'jenkins'
+        state: 'directory'
+      become: yes
+
+    - name: copy files
+      copy:
+        src: "files/{{ item }}"
+        dest: "/home/jenkins/{{ item }}"
+        mode: 0755
+      with_items:
+        - 'certificate.sh'
+      become: yes
+      become_user: 'jenkins'
+
+    - name: 'pipeline config'
+      template:
+        src: 'files/job.xml.j2'
+        dest: '/home/jenkins/job.xml'
+      become: yes
+      become_user: 'jenkins'
+    
+    - name: 'create demo pipeline job'
+      jenkins_job:
+        name: 'Pipeline Demo 2'
+        config: "{{ lookup('file', '/home/jenkins/job.xml') }}" # "{{ lookup('file', 'files/job.xml') }}"
+        url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
+        user: "{{ jenkins_admin_username }}"
+        password: "{{ jenkins_admin_password }}"
