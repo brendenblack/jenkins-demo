@@ -9,4 +9,4 @@
 # export SYSTEMD_PAGER=
 
 # User specific aliases and functions
-export ANSIBLE_VAULT_PASSWORD_FILE=~/.vault/.pass
+# export ANSIBLE_VAULT_PASSWORD_FILE=~/.vault/.pass

@@ -2,61 +2,61 @@
 - hosts: default
   vars:
     pipeline_script: "{{ lookup('file', 'files/Jenkinsfile') }}"
-  # roles:
-  #   - name: roles/jenkins
-  #     vars:
-  #       jenkins_plugins:
-  #         - blueocean
-  #         - git
-  #         - job-dsl
-  #         - workflow-aggregator
-  #     become: yes
+  roles:
+    - name: roles/jenkins
+      vars:
+        jenkins_plugins:
+          - blueocean
+          - git
+          - job-dsl
+          - workflow-aggregator
+      become: yes
   tasks:
     - name: 'load secrets'
       include_vars:
         file: 'files/secrets.yml'    
-    # - name: make Jenkins home directory
-    #   file:
-    #     path: '/home/jenkins'
-    #     owner: 'jenkins'
-    #     group: 'jenkins'
-    #     state: 'directory'
-    #   become: yes
+    - name: make Jenkins home directory
+      file:
+        path: '/home/jenkins'
+        owner: 'jenkins'
+        group: 'jenkins'
+        state: 'directory'
+      become: yes
 
-    # - name: copy files
-    #   copy:
-    #     src: "files/{{ item }}"
-    #     dest: "/home/jenkins/{{ item }}"
-    #     mode: 0755
-    #   with_items:
-    #     - 'certificate.sh'
-    #     - 'msg.txt'
-    #   become: yes
-    #   become_user: 'jenkins'
+    - name: copy files
+      copy:
+        src: "files/{{ item }}"
+        dest: "/home/jenkins/{{ item }}"
+        mode: 0755
+      with_items:
+        - 'certificate.sh'
+        - 'msg.txt'
+      become: yes
+      become_user: 'jenkins'
 
-    # - name: 'pipeline config'
-    #   template:
-    #     src: 'files/job.xml.j2'
-    #     dest: '/home/jenkins/job.xml'
-    #   become: yes
-    #   become_user: 'jenkins'
+    - name: 'pipeline config'
+      template:
+        src: 'files/job.xml.j2'
+        dest: '/home/jenkins/job.xml'
+      become: yes
+      become_user: 'jenkins'
     
-    # - name: 'create demo pipeline job'
-    #   jenkins_job:
-    #     name: 'Pipeline Demo 2'
-    #     config: "{{ lookup('file', '/home/jenkins/job.xml') }}" # "{{ lookup('file', 'files/job.xml') }}"
-    #     url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
-    #     user: "{{ jenkins_admin_username }}"
-    #     password: "{{ jenkins_admin_password }}"
+    - name: 'create demo pipeline job'
+      jenkins_job:
+        name: 'Pipeline Demo 2'
+        config: "{{ lookup('file', '/home/jenkins/job.xml') }}" # "{{ lookup('file', 'files/job.xml') }}"
+        url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
+        user: "{{ jenkins_admin_username }}"
+        password: "{{ jenkins_admin_password }}"
     
-    # - name: 'configure mutt' # requires "smtp_pass" to be set to the jenkinsboothCGI@gmail.com password
-    #   template:
-    #     src: 'files/muttrc.j2'
-    #     dest: '/home/jenkins/.muttrc'
-    #     owner: 'jenkins'
-    #     group: 'jenkins'
-    #     mode: 700
-    #   become: yes
+    - name: 'configure mutt' # requires "smtp_pass" to be set to the jenkinsboothCGI@gmail.com password
+      template:
+        src: 'files/muttrc.j2'
+        dest: '/home/jenkins/.muttrc'
+        owner: 'jenkins'
+        group: 'jenkins'
+        mode: 700
+      become: yes
 
     - name: 'download demo WAR source code'
       get_url:
@@ -64,8 +64,7 @@
         url_username: "{{ stash_username }}"
         url_password: "{{ stash_password }}"
         dest: '/tmp/npe-e2edemo-war.zip'
-      become: yes
-      become_user: 'jenkins'
+        mode: 0777
     
     - name: 'npe-e2edemo-war folder'
       file:
