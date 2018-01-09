@@ -1,0 +1,18 @@
+---
+- hosts: default
+  vars:
+    webapps_dir: '/usr/share/tomcat/webapps'
+    generator_type: 'util'
+    guid: "{{ ansible_date_time.iso8601_micro | to_uuid }}"
+  tasks:
+    - name: "undeploy demo webapp"
+      file:
+        path: "{{ webapps_dir }}/demo.war"
+        state: absent
+      become: yes
+      become_user: 'tomcat'
+    
+    - name: "deploy demo webapp"
+      shell: "cp /vagrant/{{ email }}/target/npe-e2edemo-war-1.1.0.4-SNAPSHOT.war /usr/share/tomcat/webapps/demo.war"
+      become: yes
+      become: 'tomcat'

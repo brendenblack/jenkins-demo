@@ -2,16 +2,21 @@
 # vi: set ft=ruby :
 
 
+# https://www.ostechnix.com/linux-troubleshooting-semanage-command-not-found-in-centos-7rhel-7/
+
 $scriptsWithSudo = <<SCRIPT
   sudo timedatectl set-timezone America/Vancouver
+  sudo echo "timeout=140" >> /etc/yum.conf
+  sudo echo "minrate=1" >> /etc/yum.conf
   sudo rpm -iUvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
   sudo yum -y update
-  sudo yum -y install kernel* dkms gcc ansible gcc python-pip python-devel openssl-devel unzip git wget ImageMagick ssmtp curl python-jenkins mutt
+  sudo yum -y install kernel* dkms gcc ansible gcc python-pip python-devel openssl-devel unzip git wget ImageMagick curl python-jenkins tomcat maven mutt postfix cyrus-sasl-plain cyrus-sasl-md5 policycoreutils-python
   sudo pip install "pywinrm>=0.1.1"
   sudo yum remove java
   sudo yum -y install java-1.8.0-openjdk
   sudo systemctl stop postfix
   sudo systemctl disable postfix
+  sudo semanage port -a -t http_port_t -p tcp 8090
   sudo alternatives --set mta /usr/sbin/sendmail.ssmtp
   echo 'Generating private/public key pair'
   sudo -Hu vagrant ssh-keygen -q -f /home/vagrant/.ssh/id_rsa -t rsa -N ''
@@ -24,6 +29,7 @@ $scriptsWithSudo = <<SCRIPT
   sudo sed -i -- 's/#PasswordAuthentication yes/PasswordAuthentication yes/g' /etc/ssh/sshd_config
   sudo systemctl restart sshd
   sudo -i echo 'wwwadm  ALL=(ALL:ALL) ALL' >> /etc/sudoers
+  sudo -i echo 'jenkins ALL = (ALL) NOPASSWD: ALL'
 SCRIPT
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
@@ -44,6 +50,7 @@ Vagrant.configure("2") do |config|
   # via 127.0.0.1 to disable public access
   # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
   config.vm.network "forwarded_port", guest: 8080, host: 8080, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 8090, host: 8090, host_ip: "127.0.0.1"
   config.vm.network "forwarded_port", guest: 8023, host: 8023, host_ip: "127.0.0.1"
   config.vm.network "forwarded_port", guest: 22, host: 2223, id: 'ssh'
   # Create a private network, which allows host-only access to the machine

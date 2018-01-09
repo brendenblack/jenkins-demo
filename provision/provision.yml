@@ -10,8 +10,21 @@
           - git
           - job-dsl
           - workflow-aggregator
+          - ansicolor
       become: yes
   tasks:
+    - name: 'force restart of Jenkins'
+      meta: flush_handlers
+
+    - name: "wait for Jenkins to come up"
+      uri:
+        url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 60
+      delay: 1
+
     - name: 'load secrets'
       include_vars:
         file: 'files/secrets.yml'    
@@ -28,12 +41,35 @@
         src: "files/{{ item }}"
         dest: "/home/jenkins/{{ item }}"
         mode: 0755
+        owner: 'jenkins'
+        group: 'jenkins'
       with_items:
         - 'certificate.sh'
         - 'msg.txt'
+        - 'certificate.png'
+    
+    # - name: ssmtp conf
+    #   template:
+    #     src: 'files/ssmtp.conf.j2'
+    #     dest: /etc/ssmtp/ssmtp.conf
+    #     mode: 0555
+    #   become: yes
+  
+    - name: "add Jenkins to mail group"
+      user:
+        name: 'jenkins'
+        groups:
+          - 'mail'
+          - 'tomcat'
+        append: yes
+    
+    - name: 'configure Mutt'   # https://blog.spokaneits.com/2015/12/05/mutt/
+      template:
+        src: 'files/muttrc.j2'
+        dest: '/etc/Muttrc'
+        mode: 0777
       become: yes
-      become_user: 'jenkins'
-
+    
     - name: 'pipeline config'
       template:
         src: 'files/job.xml.j2'
@@ -43,20 +79,22 @@
     
     - name: 'create demo pipeline job'
       jenkins_job:
-        name: 'Pipeline Demo 2'
+        name: 'pipeline-demo-2'
         config: "{{ lookup('file', '/home/jenkins/job.xml') }}" # "{{ lookup('file', 'files/job.xml') }}"
         url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
-        user: "{{ jenkins_admin_username }}"
-        password: "{{ jenkins_admin_password }}"
-    
-    - name: 'configure mutt' # requires "smtp_pass" to be set to the jenkinsboothCGI@gmail.com password
-      template:
-        src: 'files/muttrc.j2'
-        dest: '/home/jenkins/.muttrc'
-        owner: 'jenkins'
-        group: 'jenkins'
-        mode: 700
+        user: admin # "{{ jenkins_admin_username }}"
+        password: admin # "{{ jenkins_admin_password }}"
       become: yes
+      become_user: 'jenkins'
+    
+    # - name: 'configure mutt' # requires "smtp_pass" to be set to the jenkinsboothCGI@gmail.com password
+    #   template:
+    #     src: 'files/muttrc.j2'
+    #     dest: '/home/jenkins/.muttrc'
+    #     owner: 'jenkins'
+    #     group: 'jenkins'
+    #     mode: 0700
+    #   become: yes
 
     - name: 'download demo WAR source code'
       get_url:
@@ -81,3 +119,25 @@
         dest: '/home/jenkins/npe-e2edemo-war'
       become: yes
       become_user: 'jenkins'
+
+    - name: 'configure Tomcat port'
+      template:
+        src: 'files/server.xml'
+        dest: '/etc/tomcat/server.xml'
+        owner: 'root'
+        group: 'tomcat'
+        mode: u=rw,go=r
+      become: yes
+    
+    - name: 'write permission for jenkins'
+      file:
+        path: '/var/lib/tomcat/webapps'
+        mode: o+rwx
+        recurse: yes
+      become: yes
+    
+    - name: 'restart Tomcat'
+      service:
+        name: 'tomcat'
+        state: restarted
+      become: yes

@@ -12,7 +12,7 @@ set imap_check_subscribed
 set hostname = gmail.com
 set mail_check = 120
 set timeout = 300
-set imap_keepalive = 900
+set imap_keepalive = 300
 set postponed = "+[GMail]/Drafts"
 set record = "+[GMail]/Sent Mail"
 set header_cache=~/.mutt/cache/headers
@@ -29,5 +29,5 @@ ignore "DKIM-Signature:"
 hdr_order Date From To Cc
 alternative_order text/plain text/html *
 auto_view text/html
-bind editor ^T complete
+bind editor complete-query
 set smtp_authenticators = 'gssapi:login'

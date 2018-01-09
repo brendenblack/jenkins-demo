@@ -32,7 +32,6 @@ if [ "$1" != "" ]; then
     echo "chars: $CHARS width: $WIDTH_IN_PIXELS x: $POS_X y: $POS_Y"
     # sudo convert -pointsize $FONT_SIZE -fill black -draw "text $POS_X,$POS_Y \"${1}\" " /home/jenkins/certificate.png /vagrant/out.png -verbose
     sudo convert -pointsize $FONT_SIZE -fill black -draw "text $POS_X,$POS_Y \"$1\" " /home/jenkins/certificate.png /home/jenkins/certificate-$1.png
-    mutt -s "Jenkins automation booth" $1 -a /home/jenkins/certificate-$1.png < /home/jenkins/msg.txt
 
 else
     echo "Positional parameter 1 is empty"
